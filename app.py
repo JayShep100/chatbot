@@ -65,6 +65,7 @@ def chat():
         ai_response = ai_pipeline(user_message)[0]["generated_text"]
         return jsonify({"response": ai_response})
 
+# ✅ Corrected `if __name__ == "__main__":` block
 if __name__ == "__main__":
-    # Host set to 0.0.0.0 for access from other devices on the same network
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Default to 5000 if PORT is not set
+    app.run(host="0.0.0.0", port=port, debug=True)
