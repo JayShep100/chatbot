@@ -1,0 +1,39 @@
+function sendMessage() {
+    let userMessage = document.getElementById("user-input").value.trim();
+    if (!userMessage) return;
+
+    document.getElementById("user-input").value = "";
+    let chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML += `<div class='chat-message user'>${userMessage}</div><div class="clearfix"></div>`;
+
+    let loadingIndicator = document.createElement("div"); // Add loading indicator
+    loadingIndicator.className = "chat-message ai loading";
+    loadingIndicator.textContent = "Thinking...";
+    chatBox.appendChild(loadingIndicator);
+    chatBox.innerHTML += `<div class="clearfix"></div>`;
+
+    fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`); // Check for errors
+        }
+        return response.json();
+    })
+    .then(data => {
+        chatBox.removeChild(loadingIndicator); // Remove loading indicator
+        chatBox.innerHTML += `<div class='chat-message ai'>${data.response}</div><div class="clearfix"></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight; // Or use scrollIntoView
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        chatBox.removeChild(loadingIndicator); // Remove loading indicator
+        chatBox.innerHTML += `<div class='chat-message ai error'>Error: ${error.message}</div><div class="clearfix"></div>`; // Display error message
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    document.getElementById("user-input").focus(); // Focus input
+}
